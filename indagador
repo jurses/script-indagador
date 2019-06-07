@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
+VIDEO_EXT="mkv avi mp4 webm ogv flv mov wmv mpg mpeg 3gp m4v"
+COMPRESS_EXT="zip tar gz 7z rar tgz arj cab iso"
+
+function show_instructions(){
+	echo "indagador <ruta> <acción o script>"
+}
+
+function generate_file_extensions(){
+	file_extensions=""
+	for fExt in $IMAGE_EXT; do
+		arg_extensions="-iname '*.$fExt' $arg_extensions -o"
+		file_extensions="$file_extensions $arg_extensions"
+		arg_extensions=""
+	done
+	for fExt in $VIDEO_EXT; do
+		arg_extensions="-iname '*.$fExt' $arg_extensions -o"
+		file_extensions="$file_extensions $arg_extensions"
+		arg_extensions=""
+	done
+	for fExt in $COMPRESS_EXT; do
+		arg_extensions="-iname '*.$fExt' $arg_extensions -o"
+		file_extensions="$file_extensions $arg_extensions"
+		arg_extensions=""
+	done
+	file_extensions=${file_extensions::-3} # Eliminamos la '-o' sobrante.
+}
+
+if [ -z "$1" ]; then
+	echo "No especificó dónde buscar."
+	show_instructions
+else
+	generate_file_extensions
+	cat informe-plantilla.html > informe.html
+	echo "<ul>" >> informe.html
+	eval $(echo "find $(realpath $1) -type f \( $file_extensions \) -exec ./generador_informe_por_fichero {} \;")
+	echo "</ul>" >> informe.html
+fi

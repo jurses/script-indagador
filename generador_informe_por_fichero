@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
+
+mkdir -p image_evidences
+
+file=$(basename "$1")
+extension=${file#*.}
+extension_lower_case=$(echo $extension | awk '{print tolower($0)}')
+echo "$file $extension_lower_case"
+for img_file_type in $IMAGE_EXT; do
+	if [ $img_file_type == $extension_lower_case ]; then
+		cp "$1" image_evidences
+		echo "<div> <img src=\"./image_evidences/$file\"></img></div>" >> informe.html
+		break
+	fi
+done
+
+while IFS= read -r line
+do
+	echo "<li>$line</li>" >> informe.html
+done < <(exiftool "$1")
+
+echo "<li>Hash: $(sha256sum "$1" | cut -f1 -d' ')</li>" >> informe.html
