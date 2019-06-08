@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
 IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
+dir_img_evidences="$HOME/image_evidences"
 
-mkdir -p image_evidences
+mkdir -p "$dir_img_evidences"
 
 file=$(basename "$1")
 extension=${file#*.}
 extension_lower_case=$(echo $extension | awk '{print tolower($0)}')
-echo "$file $extension_lower_case"
 for img_file_type in $IMAGE_EXT; do
 	if [ $img_file_type == $extension_lower_case ]; then
-		cp "$1" image_evidences
-		echo "<div> <img src=\"./image_evidences/$file\"></img></div>" >> informe.html
+		cp "$1" $dir_img_evidences
+		echo "<div> <img src=\"dir_img_evidences/$file\"></img></div>" >> informe.html
 		break
 	fi
 done

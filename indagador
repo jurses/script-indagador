@@ -5,36 +5,32 @@ VIDEO_EXT="mkv avi mp4 webm ogv flv mov wmv mpg mpeg 3gp m4v"
 COMPRESS_EXT="zip tar gz 7z rar tgz arj cab iso"
 
 function show_instructions(){
-	echo "indagador <ruta> <acción o script>"
+	echo "indagador [-f <archivos a buscar>] <ruta> <acción o script>"
 }
 
 function generate_file_extensions(){
-	file_extensions=""
-	for fExt in $IMAGE_EXT; do
-		arg_extensions="-iname '*.$fExt' $arg_extensions -o"
-		file_extensions="$file_extensions $arg_extensions"
-		arg_extensions=""
+	for fExt in $1; do
+		arg="-iname '*.$fExt' -o"
+		find_arg_extfiles="$find_arg_extfiles $arg"
 	done
-	for fExt in $VIDEO_EXT; do
-		arg_extensions="-iname '*.$fExt' $arg_extensions -o"
-		file_extensions="$file_extensions $arg_extensions"
-		arg_extensions=""
-	done
-	for fExt in $COMPRESS_EXT; do
-		arg_extensions="-iname '*.$fExt' $arg_extensions -o"
-		file_extensions="$file_extensions $arg_extensions"
-		arg_extensions=""
-	done
-	file_extensions=${file_extensions::-3} # Eliminamos la '-o' sobrante.
+	find_arg_extfiles=${find_arg_extfiles::-3} # Eliminamos la '-o' sobrante.
 }
+
+find_arg_extfiles=""
 
 if [ -z "$1" ]; then
 	echo "No especificó dónde buscar."
 	show_instructions
+elif [ "$1" == "-f" ]; then
+	user_extensions="$2"
+	generate_file_extensions "$user_extensions"
+	script="$4"
 else
-	generate_file_extensions
-	cat informe-plantilla.html > informe.html
-	echo "<ul>" >> informe.html
-	eval $(echo "find $(realpath $1) -type f \( $file_extensions \) -exec ./generador_informe_por_fichero {} \;")
-	echo "</ul>" >> informe.html
+	script="$2"
+	generate_file_extensions "$IMAGE_EXT $VIDEO_EXT $COMPRESS_EXT"
 fi
+
+cat informe-plantilla.html > informe.html
+echo "<ul>" >> informe.html
+eval $(echo "find $(realpath $1) -type f \( $find_arg_extfiles \) -exec $script {} \;")
+echo "</ul>" >> informe.html
