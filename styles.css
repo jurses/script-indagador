@@ -1,0 +1,39 @@
+h1{
+	font-family:volume;
+	font-weight:bold;
+	font-size:170%;
+}
+
+p {
+	border: 1px solid powderblue;
+	padding: 30px;
+}
+div{
+	border: 1px solid powderblue;
+	padding: 30px;
+	background-color:green;
+	margin-botton:80px;
+}
+
+img{
+	width:600px;
+	
+}
+table{
+	margin:20px;
+	border-width:7px;
+	border-bottom:17px; 
+}
+th{
+	background-color:blue;
+}
+tr{
+	background-color:green;
+
+}
+li{
+	list-style:none;
+}
+table li{
+	list-style:scroll;
+}
