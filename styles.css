@@ -23,6 +23,8 @@ table{
 	margin:20px;
 	border-width:7px;
 	border-bottom:17px; 
+
+  align-content: space-around ;
 }
 th{
 	background-color:blue;
