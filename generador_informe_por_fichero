@@ -1,24 +1,35 @@
 #!/usr/bin/env bash
 
 IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
-dir_img_evidences="$HOME/image_evidences"
+indagator_files_directory="$(pwd)/indagatoragator_files.d"
+	selected_files="$indagator_files_directory/selected_files"
+	dir_img_evidences="$indagator_files_directory/img_evidences"
 
 mkdir -p "$dir_img_evidences"
 
-file=$(basename "$1")
-extension=${file#*.}
-extension_lower_case=$(echo $extension | awk '{print tolower($0)}')
-for img_file_type in $IMAGE_EXT; do
-	if [ $img_file_type == $extension_lower_case ]; then
-		cp "$1" $dir_img_evidences
-		echo "<div> <img src=\"dir_img_evidences/$file\"></img></div>" >> informe.html
-		break
-	fi
+while [ -f "informe.html" ]; do
+
 done
 
-while IFS= read -r line
-do
-	echo "<li>$line</li>" >> informe.html
-done < <(exiftool "$1")
+while IFS=read -r file_path
+	file=$(basename "$file_path")
+	file_extension=${file#*.}
+	file_extension_lower_case=$(echo $file_extension | awk '{print tolower($0)}')
+
+	for img_file_type in $IMAGE_EXT; do
+		if [ $img_file_type == $file_extension_lower_case ]; then
+			cp "$file_path" $dir_img_evidences
+			echo "<div> <img src=\"$dir_img_evidences/$file\"></img> </div>" >> informe.html
+			break
+		fi
+	done
+
+	while IFS= read -r line
+	do
+		echo "<li>$line</li>" >> informe.html
+	done < <(exiftool "$file_path")
+
+do < <(cat $selected_files)
+
 
 echo "<li>Hash: $(sha256sum "$1" | cut -f1 -d' ')</li>" >> informe.html
