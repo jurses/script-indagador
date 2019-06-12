@@ -7,9 +7,17 @@ indagator_files_directory="$(pwd)/indagatoragator_files.d"
 
 mkdir -p "$dir_img_evidences"
 
-while [ -f "informe.html" ]; do
-
-done
+if [ ! -f "informe.html" ]; then
+	## Aquí iría la cabecera del html
+	echo "" > informe.html
+	##
+else
+	count=1
+	while [ -f "informe_$count.html" ]; do
+		count=$((count + 1))
+	done
+	echo "" > informe_$count.html
+fi
 
 while IFS=read -r file_path
 	file=$(basename "$file_path")
