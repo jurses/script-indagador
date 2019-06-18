@@ -1,25 +1,32 @@
 #!/usr/bin/env bash
 
 IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
-indagator_files_directory="$(pwd)/indagatoragator_files.d"
-	selected_files="$indagator_files_directory/selected_files"
-	dir_img_evidences="$indagator_files_directory/img_evidences"
+
+if [ ! -z "$1" ]; then
+	indagador_files_directory="$(pwd)/indagador_files.d"
+	selected_files="$indagador_files_directory/selected_files"
+	dir_img_evidences="$indagador_files_directory/img_evidences"
+else
+	selected_files="$1"
+	dir_img_evidences="$(pwd)/img_evidences"
+fi
 
 mkdir -p "$dir_img_evidences"
 
 if [ ! -f "informe.html" ]; then
 	## Aquí iría la cabecera del html
-	echo "" > informe.html
+	> informe.html
 	##
 else
 	count=1
 	while [ -f "informe_$count.html" ]; do
 		count=$((count + 1))
 	done
-	echo "" > informe_$count.html
+	> informe_$count.html
 fi
 
-while IFS=read -r file_path
+while IFS= read -r file_path
+do
 	file=$(basename "$file_path")
 	file_extension=${file#*.}
 	file_extension_lower_case=$(echo $file_extension | awk '{print tolower($0)}')
@@ -37,7 +44,7 @@ while IFS=read -r file_path
 		echo "<li>$line</li>" >> informe.html
 	done < <(exiftool "$file_path")
 
-do < <(cat $selected_files)
+done < <(cat "$selected_files")
 
 
 echo "<li>Hash: $(sha256sum "$1" | cut -f1 -d' ')</li>" >> informe.html
