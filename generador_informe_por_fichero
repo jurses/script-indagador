@@ -1,59 +1,75 @@
 #!/usr/bin/env bash
 
 IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
-informe="informe.html"
+report_file="informe"
+begin_html="cabecera.html"
 
-if [ ! -z "$1" ]; then
-	indagador_files_directory="$(pwd)/indagador_files.d"
-	selected_files="$indagador_files_directory/selected_files"
-	dir_img_evidences="$indagador_files_directory/img_evidences"
-elif [ "-s" == "$1" ]; then
-	selected_files="$2"
-	dir_img_evidences="$(pwd)/img_evidences"
+function print_begin_header_html(){
+	report_file=$1
+	echo "<!DOCTYPE html>" >> $report_file
+	echo "<html>" >> $report_file 
+	echo "<title>Análisis forense</title>" >> $report_file
+	echo "<body>" >> $report_file
+	echo "<h1>Evidencias</h1>" >> $report_file
+}
+
+if [ "-s" == "$1" ]; then
+	if [ "indagador_files.d/" == "$(basename $2)/" ]; then
+		selected_files="${2}selected_files"
+		dir_img_evidences="${2}img_evidences"
+	else
+		echo "Correct usage: generador_informe_por_fichero -s <ruta a indagador_files.d>/"
+	fi
 fi
 
 mkdir -p "$dir_img_evidences"
 
-if [ ! -f "$informe" ]; then
-	## Aquí iría la cabecera del html
-	> $informe
-	##
+if [ ! -f "$report_file.html" ]; then
+	#cat $begin_html > $report_file.html
+	print_begin_header_html $report_file.html
 else
 	count=1
-	while [ -f "informe_$count.html" ]; do
+	while [ -f "${report_file}_$count.html" ]; do
 		count=$((count + 1))
 	done
-	> informe_$count.html
+	print_begin_header_html ${report_file}_$count.html
 fi
+
 
 while IFS= read -r file_abs_path
 do
 	file=$(basename "$file_abs_path")
+	echo "Ahora estoy con el archivo:$file"
 	file_extension=${file#*.}
 	file_extension_lower_case=$(echo $file_extension | awk '{print tolower($0)}')
 
-	echo "<h2>Evidencia: $file</h2>" >> $informe
+	echo "<h2>Evidencia: $file</h2>" >> $report_file.html
 	for img_file_type in $IMAGE_EXT; do
 		if [ $img_file_type == $file_extension_lower_case ]; then
-			cp "$file_abs_path" $dir_img_evidences
-			echo "<div> <img src=\"$dir_img_evidences/$file\"></img> </div>" >> $informe
+			if [ ! -f "$dir_img_evidences/$file" ]; then
+				cp "$file_abs_path" $dir_img_evidences
+			else
+				echo "el archivo ya está en $dir_img_evidences. No es necesario copiarlo"
+			fi
+			echo "Copio el archivo $file_abs_path a $dir_img_evidences."
+			echo "<div> <img src=\"$dir_img_evidences/$file\"></img> </div>" >> $report_file.html
 			break
 		fi
 	done
 
-	echo "<table>" >> $informe
+	echo "<table>" >> $report_file.html
 	while IFS= read -r line
 	do
-		echo "<tr>$line</tr>" >> $informe
+		echo "<tr>$line</tr>" >> $report_file.html
 	done < <(exiftool "$file_abs_path")
 
-	echo "<tr>Hash: $(sha256sum "$file_abs_path" | cut -f1 -d' ')</tr>" >> $informe
-	echo "</table>" >> $informe
+	echo "<tr>Hash: $(sha256sum "$file_abs_path" | cut -f1 -d' ')</tr>" >> $report_file.html
+	echo "</table>" >> $report_file.html
 
 done < <(cat "$selected_files")
 
 
 
 #final
-echo " </body>
-</html>" >> $informe
+echo "</body>" >> $report_file.html
+echo "</html>" >> $report_file.html
