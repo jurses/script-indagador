@@ -2,14 +2,15 @@
 
 IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
 VIDEO_EXT="mkv avi mp4 webm ogv flv mov wmv mpg mpeg 3gp m4v"
+OFFICE_EXT="pdf doc docx xls xlsx odt odf odp"
 COMPRESS_EXT="zip tar gz 7z rar tgz arj cab iso"
 
-ind_files_directory="$(pwd)/indagator_files.d"
+ind_files_directory="$(pwd)/indagador_files.d"
 selected_files="$ind_files_directory/selected_files"
 
 mkdir -p $ind_files_directory
 
-echo "" > $selected_files
+> $selected_files
 
 function show_instructions(){
 	echo "indagador [-f <archivos a buscar>] <ruta> <acción o script>"
@@ -30,14 +31,14 @@ if [ -z "$1" ]; then
 	show_instructions
 	exit
 elif [ "$1" == "-f" ] && [ ! -z "$2" ]; then
-	user_extensions="$2"
+	user_extensions=$(echo "$2")
 	generate_file_extensions "$user_extensions"
 	script="$4"
 	arg_user_files="$1"
 	path="$3"
 else
 	script="$2"
-	generate_file_extensions "$IMAGE_EXT $VIDEO_EXT $COMPRESS_EXT"
+	generate_file_extensions "$IMAGE_EXT $VIDEO_EXT $COMPRESS_EXT $OFFICE_EXT"
 	path="$1"
 fi
 
