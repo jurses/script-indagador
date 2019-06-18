@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
 
 IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
+informe="informe.html"
+file=
 
 if [ ! -z "$1" ]; then
 	indagador_files_directory="$(pwd)/indagador_files.d"
 	selected_files="$indagador_files_directory/selected_files"
 	dir_img_evidences="$indagador_files_directory/img_evidences"
-else
-	selected_files="$1"
+elif [ "-s" == "$1" ]; then
+	selected_files="$2"
 	dir_img_evidences="$(pwd)/img_evidences"
 fi
 
 mkdir -p "$dir_img_evidences"
 
-if [ ! -f "informe.html" ]; then
+if [ ! -f "$informe" ]; then
 	## Aquí iría la cabecera del html
-	> informe.html
+	> $informe
 	##
 else
 	count=1
@@ -31,20 +33,27 @@ do
 	file_extension=${file#*.}
 	file_extension_lower_case=$(echo $file_extension | awk '{print tolower($0)}')
 
+	echo "<h2>Evidencia: $file</h2>" >> $informe
 	for img_file_type in $IMAGE_EXT; do
 		if [ $img_file_type == $file_extension_lower_case ]; then
 			cp "$file_path" $dir_img_evidences
-			echo "<div> <img src=\"$dir_img_evidences/$file\"></img> </div>" >> informe.html
+			echo "<div> <img src=\"$dir_img_evidences/$file\"></img> </div>" >> $informe
 			break
 		fi
 	done
 
+	echo "<table>" >> $informe
 	while IFS= read -r line
 	do
-		echo "<li>$line</li>" >> informe.html
+		echo "<tr>$line</tr>" >> $informe
 	done < <(exiftool "$file_path")
+	echo "</table>" >> $informe
 
 done < <(cat "$selected_files")
 
 
-echo "<li>Hash: $(sha256sum "$1" | cut -f1 -d' ')</li>" >> informe.html
+echo "<li>Hash: $(sha256sum "$1" | cut -f1 -d' ')</li>" >> $informe
+
+#final
+echo " </body>
+</html>" >> $informe
