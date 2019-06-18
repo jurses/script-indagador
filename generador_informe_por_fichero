@@ -2,7 +2,6 @@
 
 IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
 informe="informe.html"
-file=
 
 if [ ! -z "$1" ]; then
 	indagador_files_directory="$(pwd)/indagador_files.d"
@@ -27,16 +26,16 @@ else
 	> informe_$count.html
 fi
 
-while IFS= read -r file_path
+while IFS= read -r file_abs_path
 do
-	file=$(basename "$file_path")
+	file=$(basename "$file_abs_path")
 	file_extension=${file#*.}
 	file_extension_lower_case=$(echo $file_extension | awk '{print tolower($0)}')
 
 	echo "<h2>Evidencia: $file</h2>" >> $informe
 	for img_file_type in $IMAGE_EXT; do
 		if [ $img_file_type == $file_extension_lower_case ]; then
-			cp "$file_path" $dir_img_evidences
+			cp "$file_abs_path" $dir_img_evidences
 			echo "<div> <img src=\"$dir_img_evidences/$file\"></img> </div>" >> $informe
 			break
 		fi
@@ -46,13 +45,14 @@ do
 	while IFS= read -r line
 	do
 		echo "<tr>$line</tr>" >> $informe
-	done < <(exiftool "$file_path")
+	done < <(exiftool "$file_abs_path")
+
+	echo "<tr>Hash: $(sha256sum "$file_abs_path" | cut -f1 -d' ')</tr>" >> $informe
 	echo "</table>" >> $informe
 
 done < <(cat "$selected_files")
 
 
-echo "<li>Hash: $(sha256sum "$1" | cut -f1 -d' ')</li>" >> $informe
 
 #final
 echo " </body>
