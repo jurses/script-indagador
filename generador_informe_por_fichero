@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
 IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
-report_file="informe"
+report_file="informe.html"
+report_file_orig="informe"
 begin_html="cabecera.html"
 
 function print_begin_header_html(){
 	report_file=$1
+	echo "print header $report_file"
 	echo "<!DOCTYPE html>" >> $report_file
 	echo "<html>" >> $report_file 
 	echo "<title>Análisis forense</title>" >> $report_file
@@ -19,57 +21,63 @@ if [ "-s" == "$1" ]; then
 		dir_img_evidences="${2}img_evidences"
 	else
 		echo "Correct usage: generador_informe_por_fichero -s <ruta a indagador_files.d>/"
+		exit
 	fi
 fi
 
 mkdir -p "$dir_img_evidences"
 
-if [ ! -f "$report_file.html" ]; then
-	#cat $begin_html > $report_file.html
-	print_begin_header_html $report_file.html
+if [ ! -f "$report_file" ]; then
+	#cat $begin_html > $report_file
+	print_begin_header_html $report_file
 else
-	count=1
-	while [ -f "${report_file}_$count.html" ]; do
+	count=0
+	while [ -f "$report_file" ]; do
 		count=$((count + 1))
+		report_file="$report_file_orig_$count.html"
 	done
-	print_begin_header_html ${report_file}_$count.html
+	print_begin_header_html $report_file
 fi
 
 
 while IFS= read -r file_abs_path
 do
 	file=$(basename "$file_abs_path")
-	echo "Ahora estoy con el archivo:$file"
 	file_extension=${file#*.}
 	file_extension_lower_case=$(echo $file_extension | awk '{print tolower($0)}')
 
-	echo "<h2>Evidencia: $file</h2>" >> $report_file.html
+	echo "<h2>Evidencia: $file</h2>" >> $report_file
 	for img_file_type in $IMAGE_EXT; do
 		if [ $img_file_type == $file_extension_lower_case ]; then
 			if [ ! -f "$dir_img_evidences/$file" ]; then
 				cp "$file_abs_path" $dir_img_evidences
-			else
-				echo "el archivo ya está en $dir_img_evidences. No es necesario copiarlo"
 			fi
-			echo "Copio el archivo $file_abs_path a $dir_img_evidences."
-			echo "<div> <img src=\"$dir_img_evidences/$file\"></img> </div>" >> $report_file.html
+			echo "<div> <img src=\"$dir_img_evidences/$file\"></img> </div>" >> $report_file
 			break
 		fi
 	done
 
-	echo "<table>" >> $report_file.html
+	echo "<table>" >> $report_file
 	while IFS= read -r line
 	do
-		echo "<tr>$line</tr>" >> $report_file.html
-	done < <(exiftool "$file_abs_path")
+		echo $line
+		echo "<tr>" >> $report_file
+		echo "   <td>" >> $report_file
+			var_name=$(echo $line | cut -f1 -d":")
+			echo "   $var_name" >> $report_file
+		echo "   </td>" >> $report_file
+		echo "   <td>" >> $report_file
+		var_data=$(echo $line | cut -f2 -d":")
+			echo "   $var_data" >> $report_file
+		echo "   </td>" >> $report_file
+		echo "</tr>" >> $report_file
+	done < <(exiftool "$file_abs_path" | tr -d " ")
 
-	echo "<tr>Hash: $(sha256sum "$file_abs_path" | cut -f1 -d' ')</tr>" >> $report_file.html
-	echo "</table>" >> $report_file.html
+	echo "<tr>Hash: $(sha256sum "$file_abs_path" | cut -f1 -d' ')</tr>" >> $report_file
+	echo "</table>" >> $report_file
 
 done < <(cat "$selected_files")
 
-
-
 #final
-echo "</body>" >> $report_file.html
-echo "</html>" >> $report_file.html
+echo "</body>" >> $report_file
+echo "</html>" >> $report_file
