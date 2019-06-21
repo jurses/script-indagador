@@ -4,7 +4,7 @@ IMAGE_EXT="jpg jpeg gif bmp tif png raw awr psd xcf webp"
 report_file="informe.html"
 report_file_orig="informe"
 begin_html="cabecera.html"
-
+css_file="styles.css"
 function print_begin_header_html(){
 	report_file=$1
 	echo "$repor_file"
@@ -75,8 +75,12 @@ do
 		echo "   </td>" >> $report_file
 		echo "</tr>" >> $report_file
 	done < <(exiftool "$file_abs_path" | tr -d " ")
+	
+	echo "<tr>" >> $report_file
+		echo "<td>Hash sha256</td>" >> $report_file
+		echo "<td>$(sha256sum "$file_abs_path" | cut -f1 -d' ')</td>" >> $report_file
+	echo "</tr>" >> $report_file
 
-	echo "<tr>Hash: $(sha256sum "$file_abs_path" | cut -f1 -d' ')</tr>" >> $report_file
 	echo "</table>" >> $report_file
 
 done < <(cat "$selected_files")

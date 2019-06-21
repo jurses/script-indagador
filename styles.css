@@ -1,17 +1,14 @@
 h1{
 	font-family:volume;
 	font-weight:bold;
-	font-size:170%;
+	font-size:180%;
+	
 }
 
-p {
-	border: 1px solid powderblue;
-	padding: 30px;
-}
 div{
 	border: 1px solid powderblue;
 	padding: 30px;
-	background-color:green;
+	background-color:#a2f0aa;
 	margin-botton:80px;
 }
 
@@ -19,6 +16,7 @@ img{
 	width:600px;
 	
 }
+
 table{
 	margin:20px;
 	border-width:7px;
@@ -27,8 +25,9 @@ table{
 th{
 	background-color:blue;
 }
-tr{
-	background-color:green;
+td{
+	background-color:#a2f0aa;
+	border: 2px solid aqua; 
 
 }
 li{
