@@ -7,10 +7,14 @@ begin_html="cabecera.html"
 
 function print_begin_header_html(){
 	report_file=$1
+	echo "$repor_file"
 	echo "print header $report_file"
 	echo "<!DOCTYPE html>" >> $report_file
 	echo "<html>" >> $report_file 
 	echo "<title>Análisis forense</title>" >> $report_file
+	echo "<head>" >> $report_file
+		echo "<link rel=\"stylesheet\" href=\"$css_file\">" >> $report_file
+	echo "</head>" >> $report_file
 	echo "<body>" >> $report_file
 	echo "<h1>Evidencias</h1>" >> $report_file
 }
@@ -34,7 +38,7 @@ else
 	count=0
 	while [ -f "$report_file" ]; do
 		count=$((count + 1))
-		report_file="$report_file_orig_$count.html"
+		report_file="${report_file_orig}_${count}.html"
 	done
 	print_begin_header_html $report_file
 fi
@@ -60,7 +64,6 @@ do
 	echo "<table>" >> $report_file
 	while IFS= read -r line
 	do
-		echo $line
 		echo "<tr>" >> $report_file
 		echo "   <td>" >> $report_file
 			var_name=$(echo $line | cut -f1 -d":")
@@ -78,6 +81,5 @@ do
 
 done < <(cat "$selected_files")
 
-#final
 echo "</body>" >> $report_file
 echo "</html>" >> $report_file
